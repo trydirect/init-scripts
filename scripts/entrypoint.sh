@@ -14,19 +14,44 @@ set -o pipefail
 
 : "${WORKING_DIR:=""}"
 
-VERSION="0.0.1"
+VERSION="0.0.2"
 INIT="false"
+
+
+usage() {
+  cat << USAGE >&2
+Usage:
+    --init          : Run the initialization script.
+    bash | sh       : Enter the container without executing a command.
+    -v | --version  : Display the version and usage information.
+
+Service Verification:
+    To validate services before starting the container, you can 
+    configure the following environment variables:
+    - \$MYSQL_HOST          : MySQL host verification.
+    - \$POSTGRESS_HOST      : Postgres host verification.
+    - \$ELASTICSEARCH_HOST  : Elasticsearch host verification.
+
+Once all checks pass successfully, the container will execute the provided CMD/command.
+USAGE
+}
 
 case "$1" in
     -v | --version)
         echo "Version: $VERSION"
+        usage
         exit
         ;;
     --init)
         INIT="true"
         ;;
-
+    bash | sh)
+        exec "$@"
+        ;;
 esac
+
+
+}
 
 Check_TCP_service() {
     HOST=$1
