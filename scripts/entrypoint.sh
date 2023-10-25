@@ -51,8 +51,6 @@ case "$1" in
 esac
 
 
-}
-
 Check_TCP_service() {
     HOST=$1
     PORT=$2
