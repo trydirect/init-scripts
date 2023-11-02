@@ -62,21 +62,21 @@ Check_HTTP_service() {
     /scripts/wait_for.sh $HOST -t 1
 }
 
-if [[ $MYSQL_HOST != "" ]]; then
+if [[ ! -z $MYSQL_HOST ]]; then
     : "${MYSQL_PORT:=3306}"
 
     Check_TCP_service $MYSQL_HOST $MYSQL_PORT 
     echo "MYSQL_HOST is ok"
 fi
 
-if [[ $POSTGRESS_HOST != "" ]]; then
+if [[ ! -z $POSTGRESS_HOST ]]; then
     : "${POSTGRES_PORT:=5432}"
     
     Check_TCP_service $POSTGRES_HOST $POSTGRES_PORT 
     echo "POSTGRES_HOST is ok"
 fi
 
-if [[ $ELASTICSEARCH_HOST != "" ]]; then
+if [[ ! -z $ELASTICSEARCH_HOST ]]; then
     : "${ELASTICSEARCH_PORT:=9200}"
 
     LINK_TO_CHECK="http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/_cluster/health"
