@@ -1,9 +1,9 @@
-#! /usr/bin/env bash
+#! /usr/bin/env sh
 
 set -e
 set -o errexit
 set -o nounset
-set -o pipefail
+# set -o pipefail # Doesn't work with sh
 # set -o xtrace # Uncomment this line for debugging purposes
 
 #Variables
