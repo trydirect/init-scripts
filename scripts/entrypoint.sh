@@ -93,7 +93,7 @@ fi
 
 
 # Only execute init script once
-if [[ ! -f "$WORKING_DIR/.initialized" ]]; then
+if [ ! -f "$WORKING_DIR/.initialized" ]; then
     case "$INIT" in
         true)
             echo "Initilizing app"
@@ -109,7 +109,7 @@ if [[ ! -f "$WORKING_DIR/.initialized" ]]; then
     esac
 fi
 
-if [[ $1 == '--init' ]]; then
+if [ $1 == '--init' ]; then
     shift
 fi
 
