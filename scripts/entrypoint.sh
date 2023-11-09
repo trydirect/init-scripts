@@ -2,7 +2,7 @@
 
 set -e
 # set -x
-# set -o errexit
+set -o errexit
 set -o nounset
 # set -o pipefail # Doesn't work with sh
 # set -o xtrace # Uncomment this line for debugging purposes
