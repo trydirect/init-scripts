@@ -11,7 +11,8 @@ set -o nounset
 : "${MYSQL_HOST:=}"
 : "${POSTGRESS_HOST:=}"
 : "${ELASTICSEARCH_HOST:=}"
-
+: "${MQ_SERVER_COMMUNICATE_HOST:=}"
+: "${REDIS_HOST:=}"
 
 : "${WORKING_DIR:=""}"
 
