@@ -1,7 +1,8 @@
 #! /usr/bin/env sh
 
 set -e
-set -o errexit
+# set -x
+# set -o errexit
 set -o nounset
 # set -o pipefail # Doesn't work with sh
 # set -o xtrace # Uncomment this line for debugging purposes
@@ -14,9 +15,10 @@ set -o nounset
 
 : "${WORKING_DIR:=""}"
 
-VERSION="0.0.3"
-INIT="false"
 
+VERSION="0.0.4"
+INIT="false"
+TIMEOUT=1
 
 usage() {
   cat << USAGE >&2
@@ -28,9 +30,11 @@ Usage:
 Service Verification:
     To validate services before starting the container, you can 
     configure the following environment variables:
-    - \$MYSQL_HOST          : MySQL host verification.
-    - \$POSTGRESS_HOST      : Postgres host verification.
-    - \$ELASTICSEARCH_HOST  : Elasticsearch host verification.
+    - \$MYSQL_HOST                  : MySQL host verification.
+    - \$POSTGRESS_HOST              : Postgres host verification.
+    - \$ELASTICSEARCH_HOST          : Elasticsearch host verification.
+    - \$MQ_SERVER_COMMUNICATE_HOST  : RabbitMQ host verification.
+    - \$REDIS_HOST                  : Radis host verification.
 
 Once all checks pass successfully, the container will execute the provided CMD/command.
 USAGE
@@ -50,29 +54,71 @@ case "$1" in
         ;;
 esac
 
+check_service() {
+    protocol=$1
+    host_to_check=$2
 
-Check_TCP_service() {
-    HOST=$1
-    PORT=$2
-    /scripts/wait_for.sh $HOST:$PORT -t 1
-}
+    # case "$host_to_check" in
+    #    redis)
+    #         set -x ;;
+    #     *)
+    #         set +x ;;
+    # esac 
 
-Check_HTTP_service() {
-    HOST=$1
-    /scripts/wait_for.sh $HOST -t 1
+    if [ $# -eq 3 ]; then
+        port_to_check=$3
+    fi
+
+    case "$protocol" in
+        tcp)
+        if ! command -v nc >/dev/null; then
+            echoerr 'nc command is missing!'
+            exit 1
+        fi
+        ;;
+        http)
+        if ! command -v wget >/dev/null; then
+            echoerr 'wget command is missing!'
+            exit 1
+        fi
+        ;;
+    esac
+
+    case "$protocol" in
+    tcp)
+        result=$(nc -w $TIMEOUT -z "$host_to_check" "$port_to_check" > /dev/null 2>&1 ; echo $?)
+        ;;
+    http)
+        result=$(wget --timeout=$TIMEOUT --tries=1 -q "$host_to_check" -O /dev/null > /dev/null 2>&1 ; echo $?)
+        ;;
+    *)
+        echoerr "Unknown protocol '$protocol'"
+        exit 1
+        ;;
+    esac
+
+    
+    if [ $result -eq 0 ] ; then
+        return
+    else  
+        echo "Operation timed out. host: $host_to_check is unreachable" >&2
+        exit 1
+    fi
+
+
 }
 
 if [ ! -z $MYSQL_HOST ]; then
     : "${MYSQL_PORT:=3306}"
 
-    Check_TCP_service $MYSQL_HOST $MYSQL_PORT 
+    check_service tcp $MYSQL_HOST $MYSQL_PORT 
     echo "MYSQL_HOST is ok"
 fi
 
 if [ ! -z $POSTGRESS_HOST ]; then
     : "${POSTGRES_PORT:=5432}"
     
-    Check_TCP_service $POSTGRES_HOST $POSTGRES_PORT 
+    check_service tcp $POSTGRES_HOST $POSTGRES_PORT 
     echo "POSTGRES_HOST is ok"
 fi
 
@@ -81,8 +127,24 @@ if [ ! -z $ELASTICSEARCH_HOST ]; then
 
     LINK_TO_CHECK="http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/_cluster/health"
     
-    Check_HTTP_service $LINK_TO_CHECK 
+    check_service http $LINK_TO_CHECK 
     echo "ELASTICSEARCH_HOST is ok"
+fi
+
+if [ ! -z $MQ_SERVER_COMMUNICATE_HOST ]; then
+    : "${MQ_SERVER_CHECK_PORT:=15692}"
+    
+    LINK_TO_CHECK="http://$MQ_SERVER_COMMUNICATE_HOST:$MQ_SERVER_CHECK_PORT/metrics"
+
+    check_service http $LINK_TO_CHECK
+    echo "MQ_SERVER_COMMUNICATE_HOST is ok"
+fi
+
+if [ ! -z $REDIS_HOST ]; then
+    : "${REDIS_PORT:=6379}"
+    
+    check_service tcp $REDIS_HOST $REDIS_PORT 
+    echo "REDIS_HOST is ok"
 fi
 
 if [ -z "$WORKING_DIR" ]; then
