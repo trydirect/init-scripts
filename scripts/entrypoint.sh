@@ -116,7 +116,7 @@ if [ ! -z $MYSQL_HOST ]; then
     echo "MYSQL_HOST is ok"
 fi
 
-if [ ! -z $POSTGRESS_HOST ]; then
+if [ ! -z $POSTGRES_HOST ]; then
     : "${POSTGRES_PORT:=5432}"
     
     check_service tcp $POSTGRES_HOST $POSTGRES_PORT 
