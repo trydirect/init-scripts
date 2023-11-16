@@ -9,7 +9,7 @@ set -o nounset
 
 #Variables
 : "${MYSQL_HOST:=}"
-: "${POSTGRESS_HOST:=}"
+: "${POSTGRES_HOST:=}"
 : "${ELASTICSEARCH_HOST:=}"
 : "${MQ_SERVER_COMMUNICATE_HOST:=}"
 : "${REDIS_HOST:=}"
