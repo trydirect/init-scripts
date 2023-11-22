@@ -73,13 +73,13 @@ check_service() {
     case "$protocol" in
         tcp)
         if ! command -v nc >/dev/null; then
-            echoerr 'nc command is missing!'
+            echo 'nc command is missing!'
             exit 1
         fi
         ;;
         http)
         if ! command -v wget >/dev/null; then
-            echoerr 'wget command is missing!'
+            echo 'wget command is missing!'
             exit 1
         fi
         ;;
@@ -93,7 +93,7 @@ check_service() {
         result=$(wget --timeout=$TIMEOUT --tries=1 -q "$host_to_check" -O /dev/null > /dev/null 2>&1 ; echo $?)
         ;;
     *)
-        echoerr "Unknown protocol '$protocol'"
+        echo "Unknown protocol '$protocol'"
         exit 1
         ;;
     esac
