@@ -102,7 +102,7 @@ check_service() {
     if [ $result -eq 0 ] ; then
         return
     else  
-        echo "Operation timed out. host: $host_to_check is unreachable" >&2
+        echo "Operation timed out. host: $host_to_check is unreachable"
         exit 1
     fi
 
