@@ -56,6 +56,7 @@ case "$1" in
 esac
 
 check_service() {
+    set +e
     protocol=$1
     host_to_check=$2
 
