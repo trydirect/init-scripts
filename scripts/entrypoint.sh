@@ -17,7 +17,7 @@ set -o nounset
 : "${WORKING_DIR:=""}"
 
 
-VERSION="0.0.4"
+VERSION="0.0.5"
 INIT="false"
 TIMEOUT=1
 
@@ -155,14 +155,16 @@ if [ -z "$WORKING_DIR" ]; then
 fi
 
 
-set -e
 # Only execute init script once
 if [ ! -f "$WORKING_DIR/.initialized" ]; then
     case "$INIT" in
         true)
-            set -e
             echo "Initilizing app"
             /scripts/init.sh
+            if [ "$?" != "0" ]; then
+                echo "Initialization failed"
+                exit 1
+            fi
             echo "App was initialized"
             touch "$WORKING_DIR/.initialized"
             ;;
