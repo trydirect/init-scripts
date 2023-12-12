@@ -155,11 +155,12 @@ if [ -z "$WORKING_DIR" ]; then
 fi
 
 
-
+set -e
 # Only execute init script once
 if [ ! -f "$WORKING_DIR/.initialized" ]; then
     case "$INIT" in
         true)
+            set -e
             echo "Initilizing app"
             /scripts/init.sh
             echo "App was initialized"
